@@ -1,0 +1,462 @@
+"use client";
+
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  ChatIcon,
+  ArrowDownIcon,
+  CalendarIcon,
+  TimeIcon,
+  CheckIcon,
+  CloseIcon,
+  StarIcon,
+} from "@chakra-ui/icons";
+
+const CAT_IMAGES = Array.from({ length: 8 }, (_, i) => `/images/${i + 1}.webp`);
+
+// Timeline events
+const TIMELINE_EVENTS = [
+  { date: "September 2, 2024", description: "The moment everything started" },
+  { date: "November 4, 2024", description: "Coffee and endless conversations" },
+  { date: "November 31, 2024", description: "Butterflies everywhere" },
+  { date: "July 22, 2025", description: "A quiet spark we kept to ourselves" },
+  { date: "December 19, 2025", description: "A simple promise, softly said" },
+];
+
+export default function Home() {
+  const [noCount, setNoCount] = useState(0);
+  const [yesPressed, setYesPressed] = useState(false);
+  const [rain, setRain] = useState<{ id: number; x: number; img: string; duration: number; size: number }[]>([]);
+  const [hearts, setHearts] = useState<{ id: number; x: number; duration: number; delay: number }[]>([]);
+  const [showAnimations, setShowAnimations] = useState(false);
+  const [noButtonPos, setNoButtonPos] = useState({ x: 0, y: 0 });
+  const [explodingCats, setExplodingCats] = useState<{ id: number; angle: number; img: string; size: number }[]>([]);
+  const [fadingCats, setFadingCats] = useState<{ id: number; x: number; y: number; img: string; size: number; duration: number }[]>([]);
+  const [fadingHearts, setFadingHearts] = useState<{ id: number; x: number; y: number; size: number; duration: number }[]>([]);
+
+  // Cat rain logic
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (showAnimations && !yesPressed) {
+        setRain((prev) => [
+          ...prev.slice(-15),
+          {
+            id: Math.random(),
+            x: Math.random() * 100,
+            img: CAT_IMAGES[Math.floor(Math.random() * CAT_IMAGES.length)],
+            duration: Math.random() * 3 + 2,
+            size: Math.floor(Math.random() * 40) + 60,
+          },
+        ]);
+      }
+    }, 700);
+    return () => clearInterval(interval);
+  }, [showAnimations, yesPressed]);
+
+  // Floating hearts logic
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (showAnimations && !yesPressed) {
+        setHearts((prev) => [
+          ...prev.slice(-20),
+          {
+            id: Math.random(),
+            x: Math.random() * 100,
+            duration: Math.random() * 4 + 4,
+            delay: Math.random() * 0.5,
+          },
+        ]);
+      }
+    }, 500);
+    return () => clearInterval(interval);
+  }, [showAnimations, yesPressed]);
+
+  // Exploding cats logic when yes is pressed
+  useEffect(() => {
+    if (yesPressed) {
+      const cats = Array.from({ length: 30 }, (_, i) => ({
+        id: Math.random(),
+        angle: (i * 360) / 30,
+        img: CAT_IMAGES[Math.floor(Math.random() * CAT_IMAGES.length)],
+        size: Math.floor(Math.random() * 50) + 40,
+      }));
+      setExplodingCats(cats);
+      setRain([]);
+      setHearts([]);
+    }
+  }, [yesPressed]);
+
+  // Continuous fading cats and hearts after explosion
+  useEffect(() => {
+    if (yesPressed) {
+      const timeout = setTimeout(() => {
+        const interval = setInterval(() => {
+          setFadingCats((prev) => [
+            ...prev.slice(-20),
+            {
+              id: Math.random(),
+              x: Math.random() * 100,
+              y: Math.random() * 100,
+              img: CAT_IMAGES[Math.floor(Math.random() * CAT_IMAGES.length)],
+              size: Math.floor(Math.random() * 60) + 40,
+              duration: Math.random() * 4 + 3,
+            },
+          ]);
+        }, 800);
+        return () => clearInterval(interval);
+      }, 2000);
+
+      const heartTimeout = setTimeout(() => {
+        const interval = setInterval(() => {
+          setFadingHearts((prev) => [
+            ...prev.slice(-15),
+            {
+              id: Math.random(),
+              x: Math.random() * 100,
+              y: Math.random() * 100,
+              size: Math.floor(Math.random() * 30) + 20,
+              duration: Math.random() * 4 + 3,
+            },
+          ]);
+        }, 600);
+        return () => clearInterval(interval);
+      }, 2000);
+
+      return () => {
+        clearTimeout(timeout);
+        clearTimeout(heartTimeout);
+      };
+    }
+  }, [yesPressed]);
+
+  const handleNoClick = () => {
+    setNoCount((prev) => prev + 1);
+    setNoButtonPos({
+      x: Math.random() * 200 - 100,
+      y: Math.random() * 200 - 100
+    });
+  };
+  const yesButtonSize = noCount * 80 + 18;
+  const noButtonSize = Math.max(10, 14 - noCount * 2);
+
+  return (
+    <div className="relative w-full bg-background font-sans overflow-x-hidden">
+      {/* Background animations (cats and hearts) */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <AnimatePresence>
+          {rain.map((cat) => (
+            <motion.img
+              key={cat.id}
+              src={cat.img}
+              initial={{ y: -150, x: `calc(${cat.x}vw - ${cat.size / 2}px)`, opacity: 0 }}
+              animate={{ y: "110vh", opacity: 1, rotate: 360 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: cat.duration, ease: "linear" }}
+              style={{ width: cat.size, height: cat.size, left: 0 }}
+              className="fixed rounded-full border-4 border-white shadow-2xl object-cover bg-valentine-pink"
+            />
+          ))}
+        </AnimatePresence>
+        <AnimatePresence>
+          {hearts.map((heart) => (
+            <motion.div
+              key={heart.id}
+              initial={{ y: "-100vh", x: `${heart.x}vw`, opacity: 0, scale: 0 }}
+              animate={{ y: "100vh", opacity: [0, 1, 1, 0], scale: [0, 1, 1, 0] }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: heart.duration, ease: "easeInOut", delay: heart.delay }}
+              className="fixed flex items-center justify-center text-3xl"
+              style={{ fontSize: "2rem" }}
+            >
+              ❤️
+            </motion.div>
+          ))}
+        </AnimatePresence>
+        {/* Exploding cats */}
+        <AnimatePresence>
+          {explodingCats.map((cat) => {
+            const radians = (cat.angle * Math.PI) / 180;
+            const distance = 150;
+            const endX = Math.cos(radians) * distance;
+            const endY = Math.sin(radians) * distance;
+            return (
+              <motion.img
+                key={cat.id}
+                src={cat.img}
+                initial={{ x: "50vw", y: "50vh", opacity: 0, scale: 0, rotate: 0 }}
+                animate={{ 
+                  x: `calc(50vw + ${endX}vw)`, 
+                  y: `calc(50vh + ${endY}vh)`, 
+                  opacity: [0, 1, 1, 0], 
+                  scale: [0, 1.2, 1.2, 0],
+                  rotate: cat.angle * 2
+                }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 2, ease: "easeOut" }}
+                style={{ width: cat.size, height: cat.size }}
+                className="fixed rounded-full border-4 border-white shadow-2xl object-cover bg-valentine-pink"
+              />
+            );
+          })}
+        </AnimatePresence>
+        {/* Fading cats after explosion */}
+        <AnimatePresence>
+          {fadingCats.map((cat) => (
+            <motion.img
+              key={cat.id}
+              src={cat.img}
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ opacity: [0, 0.8, 0], scale: [0, 1, 0] }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: cat.duration, ease: "easeInOut" }}
+              style={{ 
+                width: cat.size, 
+                height: cat.size, 
+                left: `${cat.x}vw`, 
+                top: `${cat.y}vh`,
+                transform: 'translate(-50%, -50%)'
+              }}
+              className="fixed rounded-full border-4 border-white shadow-2xl object-cover bg-valentine-pink"
+            />
+          ))}
+        </AnimatePresence>
+        {/* Fading hearts after explosion */}
+        <AnimatePresence>
+          {fadingHearts.map((heart) => (
+            <motion.div
+              key={heart.id}
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ opacity: [0, 0.9, 0], scale: [0, 1, 0] }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: heart.duration, ease: "easeInOut" }}
+              style={{ 
+                left: `${heart.x}vw`, 
+                top: `${heart.y}vh`,
+                fontSize: `${heart.size}px`,
+                transform: 'translate(-50%, -50%)'
+              }}
+              className="fixed flex items-center justify-center"
+            >
+              ❤️
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </div>
+
+      {/* SECTION 1: Cupid's Letter */}
+      <section className="relative z-10 min-h-screen flex items-center justify-center px-4" style={{ backgroundImage: 'url(/images/bg.webp)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
+        <div className="absolute inset-0 "></div>
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          whileInView={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.6 }}
+          className="w-full max-w-4xl relative z-20"
+        >
+          {/* Floating Cupid on top left */}
+          <motion.img
+            src="/images/cupid.webp"
+            alt="Cupid"
+            className="absolute -top-45 -left-56 w-100 h-100 object-contain z-20"
+            animate={{ y: [0, -20, 0] }}
+            transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
+          />
+
+          <div className="bg-white/70 backdrop-blur-xl rounded-3xl shadow-2xl p-8 md:p-12 text-center border border-rose-100">
+            <div className="mb-6"><ChatIcon w={16} h={16} color="#e11d48" /></div>
+            <h2 className="text-4xl md:text-5xl font-black text-valentine-red mb-6">
+              Someone is thinking of you
+            </h2>
+            <p className="text-lg text-rose-800/70 leading-relaxed mb-4">
+              Consider this an official delivery from Cupid.
+            </p>
+            <motion.div
+              animate={{ y: [0, 10, 0] }}
+              transition={{ repeat: Infinity, duration: 2 }}
+              className="mt-8"
+            >
+              <ArrowDownIcon w={12} h={12} color="#e11d48" />
+            </motion.div>
+          </div>
+        </motion.div>
+      </section>
+
+      {/* SECTION 2: Relationship Timeline */}
+      <section className="relative z-10 min-h-screen flex items-center justify-center px-4 py-20" onMouseEnter={() => setShowAnimations(true)}>
+        <div className="w-full max-w-4xl">
+          <h2 className="text-5xl font-black text-valentine-red text-center mb-16 flex items-center justify-center gap-4">
+            Our Timeline <CalendarIcon w={12} h={12} />
+          </h2>
+          <div className="space-y-12">
+            {TIMELINE_EVENTS.map((event, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6 }}
+                className={`flex gap-8 items-center ${index % 2 === 1 ? "flex-row-reverse" : ""}`}
+              >
+                <div className="flex-1 bg-white/70 backdrop-blur-xl rounded-2xl p-6 border border-rose-100 shadow-lg">
+                  <h3 className="text-2xl font-bold text-valentine-red mb-2">
+                    {event.date}
+                  </h3>
+                  <p className="text-rose-800/70">{event.description}</p>
+                </div>
+                <div className="hidden md:flex w-12 h-12 rounded-full bg-valentine-red shrink-0 items-center justify-center text-white text-xl font-bold">
+                  {index + 1}
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 3: Memories with Images */}
+      <section className="relative z-10 min-h-screen flex items-center justify-center px-4 py-20">
+        <div className="w-full max-w-6xl">
+          <h2 className="text-5xl font-black text-valentine-red text-center mb-16 flex items-center justify-center gap-4">
+            Our Memories <TimeIcon w={12} h={12} />
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+            {[1, 2, 3, 4].map((i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, scale: 0.8 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+                className="aspect-square w-full rounded-2xl overflow-hidden shadow-lg border-2 border-rose-100 bg-gradient-to-br from-valentine-pink to-rose-200"
+              >
+                <img
+                  src={`/images/memory${i}.webp`}
+                  alt={`Memory ${i}`}
+                  className="h-full w-full object-cover"
+                />
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 4: Valentine Question Card */}
+      <section className="relative z-10 min-h-screen flex items-center justify-center px-4 py-20">
+        <motion.main
+          initial={{ y: 20, opacity: 0 }}
+          whileInView={{ y: [0, -10, 0], opacity: 1 }}
+          transition={{ y: { repeat: Infinity, duration: 4, ease: "easeInOut" }, opacity: { duration: 0.5 } }}
+          className="w-full max-w-xl flex flex-col items-center justify-center py-16 px-8 bg-white/70 backdrop-blur-xl rounded-[3.5rem] shadow-[0_20px_70px_rgba(225,29,72,0.15)] text-center border border-rose-100 relative"
+        >
+          {/* Question cat image on top right */}
+          {!yesPressed && (
+            <img
+              src="/images/questioncat.webp"
+              alt="Question cat"
+              className="absolute -top-16 -right-16 w-32 h-32 object-contain"
+            />
+          )}
+          {yesPressed ? (
+            <motion.div 
+              initial={{ scale: 0.5, opacity: 0 }} 
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.6 }}
+              className="flex flex-col items-center gap-6"
+            >
+              <div className="relative">
+                <motion.div
+                  initial={{ scale: 0, rotate: -180 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  transition={{ delay: 0.3, duration: 0.5 }}
+                  className="absolute -top-5 -left-5 text-4xl"
+                >
+                  💝
+                </motion.div>
+                <motion.div
+                  initial={{ scale: 0, rotate: 180 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  transition={{ delay: 0.4, duration: 0.5 }}
+                  className="absolute -top-5 -right-5 text-4xl"
+                >
+                  💖
+                </motion.div>
+                <motion.img
+                  src="/images/happycat.gif"
+                  alt="Happy cats"
+                  initial={{ scale: 0.8 }}
+                  animate={{ scale: 1 }}
+                  transition={{ duration: 0.7 }}
+                  className="rounded-3xl border-8 border-white w-80 mx-auto"
+                  style={{ boxShadow: '0 20px 60px rgba(225, 29, 72, 0.3)' }}
+                />
+              </div>
+              
+              <motion.div 
+                initial={{ y: 20, opacity: 0 }} 
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.5, duration: 0.5 }}
+                className="flex flex-col items-center gap-3"
+              >
+                <h1 
+                  className="text-4xl md:text-5xl font-black text-center tracking-tight"
+                  style={{
+                    backgroundImage: 'linear-gradient(to right, #e11d48, #f43f5e, #e11d48)',
+                    backgroundClip: 'text',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent'
+                  }}
+                >
+                  You just made my day
+                </h1>
+                
+                <div className="h-0.5 w-24 rounded-full" style={{ background: 'linear-gradient(to right, transparent, #e11d48, transparent)' }} />
+                
+                <p className="text-2xl font-bold text-valentine-red flex items-center gap-2">
+                  Forever and always <StarIcon w={6} h={6} />
+                </p>
+                
+                <p className="text-lg text-rose-600 italic opacity-80">
+                  My one and only Valentine 💕
+                </p>
+              </motion.div>
+            </motion.div>
+          ) : (
+            <>
+              <div className="mb-10">
+                <span className="text-sm font-bold tracking-widest text-valentine-red uppercase opacity-60">
+                  A Special Invitation
+                </span>
+                <h1 className="text-4xl font-black leading-tight tracking-tighter text-foreground sm:text-6xl mt-2 flex items-center justify-center gap-2">
+                  Will you be my Valentine?
+                </h1>
+              </div>
+
+              <div className="flex flex-col items-center gap-6 sm:flex-row">
+                <button
+                  className="flex items-center justify-center rounded-full bg-valentine-red text-white transition-all hover:brightness-110 active:scale-90 shadow-xl shadow-rose-200 font-bold"
+                  style={{
+                    fontSize: yesButtonSize,
+                    padding: `${Math.max(16, yesButtonSize / 2)}px ${Math.max(40, yesButtonSize)}px`
+                  }}
+                  onClick={() => setYesPressed(true)}
+                >
+                  Yes
+                </button>
+
+                <button
+                  onClick={handleNoClick}
+                  className="flex items-center justify-center rounded-full border-2 border-valentine-red/20 px-8 font-bold text-valentine-red transition-all hover:bg-valentine-red hover:text-white"
+                  style={{
+                    fontSize: `${noButtonSize}px`,
+                    height: `${Math.max(48, 56 - noCount * 4)}px`,
+                    opacity: Math.max(0.2, 1 - noCount * 0.15),
+                    transform: `translate(${noButtonPos.x}px, ${noButtonPos.y}px)`,
+                    transition: 'transform 0.3s ease, opacity 0.3s ease'
+                  }}
+                >
+                  {noCount === 0 ? "No" : "Rethink this... 😿"}
+                </button>
+              </div>
+            </>
+          )}
+        </motion.main>
+      </section>
+    </div>
+  );
+}
