@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, Transition } from "framer-motion";
 import {
   ChatIcon,
   ArrowDownIcon,
@@ -193,10 +193,10 @@ export default function Home() {
                 key={cat.id}
                 src={cat.img}
                 initial={{ x: "50vw", y: "50vh", opacity: 0, scale: 0, rotate: 0 }}
-                animate={{ 
-                  x: `calc(50vw + ${endX}vw)`, 
-                  y: `calc(50vh + ${endY}vh)`, 
-                  opacity: [0, 1, 1, 0], 
+                animate={{
+                  x: `calc(50vw + ${endX}vw)`,
+                  y: `calc(50vh + ${endY}vh)`,
+                  opacity: [0, 1, 1, 0],
                   scale: [0, 1.2, 1.2, 0],
                   rotate: cat.angle * 2
                 }}
@@ -218,10 +218,10 @@ export default function Home() {
               animate={{ opacity: [0, 0.8, 0], scale: [0, 1, 0] }}
               exit={{ opacity: 0 }}
               transition={{ duration: cat.duration, ease: "easeInOut" }}
-              style={{ 
-                width: cat.size, 
-                height: cat.size, 
-                left: `${cat.x}vw`, 
+              style={{
+                width: cat.size,
+                height: cat.size,
+                left: `${cat.x}vw`,
                 top: `${cat.y}vh`,
                 transform: 'translate(-50%, -50%)'
               }}
@@ -238,8 +238,8 @@ export default function Home() {
               animate={{ opacity: [0, 0.9, 0], scale: [0, 1, 0] }}
               exit={{ opacity: 0 }}
               transition={{ duration: heart.duration, ease: "easeInOut" }}
-              style={{ 
-                left: `${heart.x}vw`, 
+              style={{
+                left: `${heart.x}vw`,
                 top: `${heart.y}vh`,
                 fontSize: `${heart.size}px`,
                 transform: 'translate(-50%, -50%)'
@@ -255,28 +255,25 @@ export default function Home() {
       {/* SECTION 1: Cupid's Letter */}
       <Box as="section" position="relative" zIndex={10} minH="100vh" display="flex" alignItems="center" justifyContent="center" px={4} bgImage="url(/images/bg.webp)" bgSize="cover" bgPosition="center">
         <Box position="absolute" inset="0" />
-        <Box
-          as={motion.div}
+        <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           whileInView={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.6 }}
-          w="full"
-          maxW="4xl"
-          position="relative"
-          zIndex={20}
+          style={{ width: '100%', maxWidth: '64rem', position: 'relative', zIndex: 20 }}
         >
           {/* Floating Cupid on top left */}
-          <Image
-            as={motion.img}
+          <motion.img
             src="/images/cupid.webp"
             alt="Cupid"
-            position="absolute"
-            top="-180px"
-            left="-224px"
-            w="400px"
-            h="400px"
-            objectFit="contain"
-            zIndex={20}
+            style={{
+              position: "absolute",
+              top: "-180px",
+              left: "-224px",
+              width: "400px",
+              height: "400px",
+              objectFit: "contain",
+              zIndex: 20,
+            }}
             animate={{ y: [0, -20, 0] }}
             transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
           />
@@ -306,16 +303,15 @@ export default function Home() {
             <Text fontSize="lg" color="rose.800" opacity={0.7} lineHeight="relaxed">
               Consider this an official delivery from Cupid.
             </Text>
-            <Box
-              as={motion.div}
+            <motion.div
               animate={{ y: [0, 10, 0] }}
               transition={{ repeat: Infinity, duration: 2 }}
-              mt={4}
+              style={{ marginTop: '1rem' }}
             >
               <ArrowDownIcon w={12} h={12} color="#e11d48" />
-            </Box>
+            </motion.div>
           </VStack>
-        </Box>
+        </motion.div>
       </Box>
 
       {/* SECTION 2: Relationship Timeline */}
@@ -329,16 +325,18 @@ export default function Home() {
           </Heading>
           <VStack spacing={12}>
             {TIMELINE_EVENTS.map((event, index) => (
-              <Flex
+              <motion.div
                 key={index}
-                as={motion.div}
                 initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.6 }}
-                gap={8}
-                alignItems="center"
-                flexDirection={index % 2 === 1 ? "row-reverse" : "row"}
-                w="full"
+                style={{
+                  display: "flex",
+                  gap: "2rem",
+                  alignItems: "center",
+                  flexDirection: index % 2 === 1 ? "row-reverse" : "row",
+                  width: "100%",
+                }}
               >
                 <Box
                   flex={1}
@@ -372,7 +370,7 @@ export default function Home() {
                 >
                   {index + 1}
                 </Flex>
-              </Flex>
+              </motion.div>
             ))}
           </VStack>
         </Container>
@@ -393,20 +391,22 @@ export default function Home() {
             gap={6}
           >
             {[1, 2, 3, 4].map((i) => (
-              <Box
+              <motion.div
                 key={i}
-                as={motion.div}
                 initial={{ opacity: 0, scale: 0.8 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5, delay: i * 0.1 }}
-                aspectRatio={1}
-                w="full"
-                borderRadius="2xl"
-                overflow="hidden"
-                boxShadow="lg"
-                border="2px"
-                borderColor="rose.100"
-                bgGradient="linear(to-br, valentine-pink, rose.200)"
+                style={{
+                  aspectRatio: "1 / 1",
+                  width: "100%",
+                  borderRadius: "1rem",
+                  overflow: "hidden",
+                  boxShadow: "var(--chakra-shadows-lg)",
+                  borderWidth: "2px",
+                  borderStyle: "solid",
+                  borderColor: "rgba(251, 113, 133, 0.3)",
+                  backgroundImage: "linear-gradient(to bottom right, #f9a8d4, #fecaca)",
+                }}
               >
                 <Image
                   src={`/images/memory${i}.webp`}
@@ -415,7 +415,7 @@ export default function Home() {
                   w="full"
                   objectFit="cover"
                 />
-              </Box>
+              </motion.div>
             ))}
           </Box>
         </Container>
@@ -423,27 +423,29 @@ export default function Home() {
 
       {/* SECTION 4: Valentine Question Card */}
       <Box as="section" position="relative" zIndex={10} minH="100vh" display="flex" alignItems="center" justifyContent="center" px={4} py={20}>
-        <Box
-          as={motion.main}
+        <motion.main
           initial={{ y: 20, opacity: 0 }}
           whileInView={{ y: [0, -10, 0], opacity: 1 }}
           transition={{ y: { repeat: Infinity, duration: 4, ease: "easeInOut" }, opacity: { duration: 0.5 } }}
-          w="full"
-          maxW="xl"
-          display="flex"
-          flexDirection="column"
-          alignItems="center"
-          justifyContent="center"
-          py={16}
-          px={8}
-          bg="whiteAlpha.700"
-          backdropFilter="blur(40px)"
-          borderRadius="3.5rem"
-          boxShadow="0 20px 70px rgba(225,29,72,0.15)"
-          textAlign="center"
-          border="1px"
-          borderColor="rose.100"
-          position="relative"
+          style={{
+            width: '100%',
+            maxWidth: '28rem',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            paddingTop: '4rem',
+            paddingBottom: '4rem',
+            paddingLeft: '2rem',
+            paddingRight: '2rem',
+            background: 'rgba(255, 255, 255, 0.7)',
+            backdropFilter: 'blur(40px)',
+            borderRadius: '3.5rem',
+            boxShadow: '0 20px 70px rgba(225,29,72,0.15)',
+            textAlign: 'center',
+            border: '1px solid rgba(255, 192, 203, 0.3)',
+            position: 'relative'
+          }}
         >
           {/* Question cat image on top right */}
           {!yesPressed && (
@@ -459,58 +461,73 @@ export default function Home() {
             />
           )}
           {yesPressed ? (
-            <VStack
-              as={motion.div}
+            <motion.div
               initial={{ scale: 0.5, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: 0.6 }}
-              spacing={6}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '1.5rem',
+                alignItems: 'flex-start',
+                justifyContent: 'flex-start',
+                width: '100%'
+              }}
             >
               <Box position="relative">
-                <Box
-                  as={motion.div}
+                <motion.div
                   initial={{ scale: 0, rotate: -180 }}
                   animate={{ scale: 1, rotate: 0 }}
                   transition={{ delay: 0.3, duration: 0.5 }}
-                  position="absolute"
-                  top="-20px"
-                  left="-20px"
-                  fontSize="4xl"
+                  style={{
+                    position: "absolute",
+                    top: "-20px",
+                    left: "-20px",
+                    fontSize: "2.25rem",
+                  }}
                 >
                   💝
-                </Box>
-                <Box
-                  as={motion.div}
+                </motion.div>
+                <motion.div
                   initial={{ scale: 0, rotate: 180 }}
                   animate={{ scale: 1, rotate: 0 }}
                   transition={{ delay: 0.4, duration: 0.5 }}
-                  position="absolute"
-                  top="-20px"
-                  right="-20px"
-                  fontSize="4xl"
+                  style={{
+                    position: "absolute",
+                    top: "-20px",
+                    right: "-20px",
+                    fontSize: "2.25rem",
+                  }}
                 >
                   💖
-                </Box>
-                <Image
-                  as={motion.img}
+                </motion.div>
+                <motion.img
                   src="/images/happycat.gif"
                   alt="Happy cats"
                   initial={{ scale: 0.8 }}
                   animate={{ scale: 1 }}
                   transition={{ duration: 0.7 }}
-                  borderRadius="3xl"
-                  border="8px solid white"
-                  w="320px"
-                  mx="auto"
+                  style={{
+                    borderRadius: "1.5rem",
+                    border: "8px solid white",
+                    width: "320px",
+                    height: "auto",
+                    display: "block",
+                    margin: "0 auto",
+                  }}
                 />
               </Box>
-              
-              <VStack
-                as={motion.div}
+
+              <motion.div
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.5, duration: 0.5 }}
-                spacing={3}
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "0.75rem",
+                  width: "100%",
+                }}
               >
                 <Heading
                   fontSize={{ base: "4xl", md: "5xl" }}
@@ -526,19 +543,19 @@ export default function Home() {
                 >
                   You just made my day
                 </Heading>
-                
+
                 <Box h="2px" w="24" borderRadius="full" bg="linear-gradient(to right, transparent, #e11d48, transparent)" />
-                
+
                 <HStack fontSize="2xl" fontWeight="bold" color="#e11d48" spacing={2}>
                   <Text>Forever and always</Text>
                   <StarIcon w={6} h={6} />
                 </HStack>
-                
+
                 <Text fontSize="lg" color="rose.600" fontStyle="italic" opacity={0.8}>
                   My one and only Valentine 💕
                 </Text>
-              </VStack>
-            </VStack>
+              </motion.div>
+            </motion.div>
           ) : (
             <VStack spacing={10}>
               <VStack spacing={2}>
@@ -596,7 +613,7 @@ export default function Home() {
               </Flex>
             </VStack>
           )}
-        </Box>
+        </motion.main>
       </Box>
     </Box>
   );
